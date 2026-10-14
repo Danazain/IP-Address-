@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocols & IP Addresses - Computer Networks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#3B82F6',
+                            purple: '#8B5CF6',
+                            green: '#10B981',
+                            yellow: '#F59E0B',
+                            pink: '#EC4899',
+                            dark: '#1E293B'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #F0F9FF;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .bouncy {
+            transition: transform 0.2s ease-in-out;
+        }
+        .bouncy:hover {
+            transform: scale(1.05) rotate(-1deg);
+        }
+        .bouncy:active {
+            transform: scale(0.95);
+        }
+        .pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.03); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3B82F6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-12">
+
+    <header class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-2 rounded-2xl shadow-inner text-blue-600 text-2xl">
+                    <i class="fa-solid fa-network-wired"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-wide">Network Explorers</h1>
+                    <p class="text-xs text-blue-100">Protocols & IP Addresses • Year 6 Computer Science</p>
+                </div>
+            </div>
+            
+            <!-- Progress Tracker -->
+            <div class="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-2 flex items-center gap-4 border border-white/20">
+                <div class="text-right">
+                    <span class="text-xs uppercase tracking-wider text-blue-200 block font-bold">Your Progress</span>
+                    <span id="badge-count" class="text-sm font-bold text-yellow-300"><i class="fa-solid fa-award"></i> 0 Badges</span>
+                </div>
+                <div class="w-28 bg-blue-900/40 rounded-full h-3 overflow-hidden border border-blue-400/30">
+                    <div id="progress-bar" class="bg-gradient-to-r from-yellow-400 to-green-400 h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="bg-slate-900/30 backdrop-blur-sm border-t border-white/10">
+            <div class="max-w-6xl mx-auto px-4 flex overflow-x-auto no-scrollbar gap-2 py-2">
+                <button onclick="switchTab('warmup')" id="tab-warmup" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all bg-white text-blue-700 shadow-md">
+                    <i class="fa-solid fa-magnifying-glass text-yellow-500 mr-1.5"></i> 1. Warm-up
+                </button>
+                <button onclick="switchTab('protocols')" id="tab-protocols" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all text-white/80 hover:bg-white/10">
+                    <i class="fa-solid fa-clipboard-check text-pink-400 mr-1.5"></i> 2. Protocols
+                </button>
+                <button onclick="switchTab('ip')" id="tab-ip" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all text-white/80 hover:bg-white/10">
+                    <i class="fa-solid fa-house-signal text-green-400 mr-1.5"></i> 3. IP Addresses
+                </button>
+                <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all text-white/80 hover:bg-white/10">
+                    <i class="fa-solid fa-paper-plane text-yellow-300 mr-1.5"></i> 4. Packet Simulator
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all text-white/80 hover:bg-white/10">
+                    <i class="fa-solid fa-star text-amber-400 mr-1.5"></i> 5. Exit Ticket
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 mt-6">
+        
+        <!-- Friendly Helpers Banner -->
+        <div class="bg-white rounded-2xl p-4 shadow-md border-2 border-blue-100 flex flex-col sm:flex-row items-center gap-4 mb-6 relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-50 rounded-full z-0"></div>
+            
+            <div class="flex -space-x-3 z-10">
+                <div class="w-14 h-14 rounded-full bg-indigo-500 border-4 border-white shadow flex items-center justify-center text-white font-bold text-xl" title="Jacob">
+                    👦🏽
+                </div>
+                <div class="w-14 h-14 rounded-full bg-pink-500 border-4 border-white shadow flex items-center justify-center text-white font-bold text-xl" title="Sofia">
+                    👧🏻
+                </div>
+            </div>
+            
+            <div class="z-10 flex-1 text-center sm:text-left">
+                <div class="flex items-center justify-center sm:justify-start gap-2">
+                    <span class="font-bold text-indigo-700 font-heading text-lg">Jacob & Sofia's Lab</span>
+                    <span class="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-0.5 rounded-full font-bold">Your Network Guides</span>
+                </div>
+                <p id="guide-speech" class="text-sm text-slate-600 mt-0.5">
+                    "Hey there! Ready to discover how computers talk to each other across the world? Let's start with our Rule Detective game!"
+                </p>
+            </div>
+        </div>
+
+        <!-- SECTION 1: WARM-UP (Rule Detective) -->
+        <section id="sec-warmup" class="tab-content block">
+            <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100">
+                <div class="text-center max-w-2xl mx-auto mb-6">
+                    <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Starter Activity</span>
+                    <h2 class="text-3xl font-bold font-heading text-slate-800 mt-2">Rule Detective Warm-Up 🕵️‍♂️</h2>
+                    <p class="text-slate-600 mt-1">Computers follow strict rules just like humans do! Drag or click each card to send it to either <strong class="text-indigo-600">Real-Life Rules</strong> or <strong class="text-purple-600">Digital / Computer Rules</strong>.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Real-life Box -->
+                    <div id="drop-real" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'real')" class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-dashed border-amber-300 rounded-2xl p-5 min-h-[220px] transition-colors">
+                        <div class="flex items-center gap-2 mb-3 text-amber-900 font-bold font-heading text-lg border-b border-amber-200 pb-2">
+                            <i class="fa-solid fa-users text-amber-600"></i> Real-Life Human Rules
+                        </div>
+                        <div id="container-real" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <!-- Digital Box -->
+                    <div id="drop-digital" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'digital')" class="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-dashed border-purple-300 rounded-2xl p-5 min-h-[220px] transition-colors">
+                        <div class="flex items-center gap-2 mb-3 text-purple-900 font-bold font-heading text-lg border-b border-purple-200 pb-2">
+                            <i class="fa-solid fa-laptop-code text-purple-600"></i> Digital / Computer Rules
+                        </div>
+                        <div id="container-digital" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+
+                <!-- Unsorted Items Deck -->
+                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Cards to sort (Click or Drag):</h3>
+                    <div id="unsorted-deck" class="flex flex-wrap justify-center gap-3">
+                        <!-- Cards added by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-between items-center flex-wrap gap-4">
+                    <button onclick="resetWarmup()" class="text-slate-500 hover:text-slate-700 text-sm font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Cards
+                    </button>
+                    <button id="warmup-check-btn" onclick="checkWarmup()" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold font-heading px-6 py-3 rounded-xl shadow-lg hover:shadow-xl bouncy flex items-center gap-2">
+                        <span>Check Answers</span> <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: PROTOCOLS LESSON & FIX-IT TOOL -->
+        <section id="sec-protocols" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Theory Card -->
+                <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-lg border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <span class="bg-pink-100 text-pink-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Concept 1</span>
+                        <h2 class="text-2xl font-bold font-heading text-slate-800 mt-2">What is a Protocol? 📜</h2>
+                        
+                        <p class="text-slate-600 mt-3 text-sm leading-relaxed">
+                            A <strong class="text-pink-600">Protocol</strong> is simply an agreed set of <strong>RULES</strong> for how computers send and receive information!
+                        </p>
+
+                        <div class="my-4 bg-pink-50 rounded-2xl p-4 border border-pink-100 space-y-3">
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">🤝</span>
+                                <div class="text-xs text-slate-700">
+                                    <strong class="block text-slate-900 font-bold">Human Handshake:</strong>
+                                    You reach out your right hand, make eye contact, and say "Hello!". If someone speaks another language or yells random noises, communication fails!
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-2xl">🌐</span>
+                                <div class="text-xs text-slate-700">
+                                    <strong class="block text-slate-900 font-bold">Web Protocol (HTTPS):</strong>
+                                    Websites use strict rules like <code class="bg-white px-1 py-0.5 rounded text-pink-600 font-mono">https://</code> so browsers know how to load pages safely.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-50 p-3.5 rounded-xl border border-indigo-100 flex items-center gap-3">
+                        <i class="fa-solid fa-lightbulb text-yellow-500 text-xl"></i>
+                        <p class="text-xs text-indigo-900 font-medium">Without protocols, computers would get confused and wouldn't understand each other!</p>
+                    </div>
+                </div>
+
+                <!-- Fix-The-Address / Protocol Rule Validator -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-lg border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Interactive Tool</span>
+                                <h3 class="text-xl font-bold font-heading text-slate-800 mt-1">Protocol Fix-It Lab 🛠️</h3>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">Fix 3 Errors</span>
+                        </div>
+
+                        <p class="text-slate-600 text-sm mb-4">
+                            Computers enforce strict format rules! Below are broken digital addresses. Fix them so they obey protocol rules.
+                        </p>
+
+                        <!-- Task 1: Website URL -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-globe text-blue-500"></i> Website URL Protocol (Needs http:// or https://)
+                                </label>
+                                <span id="status-url" class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">⚠️ Broken</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" id="input-url" value="www.coolschool.sch.uk" class="flex-1 px-3 py-2 border-2 border-slate-300 rounded-xl font-mono text-sm focus:outline-none focus:border-blue-500">
+                                <button onclick="validateURL()" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl transition">
+                                    Test Rule
+                                </button>
+                            </div>
+                            <p id="msg-url" class="text-xs mt-2 text-slate-500">Hint: Web addresses must start with <code class="bg-slate-200 px-1 rounded">https://</code></p>
+                        </div>
+
+                        <!-- Task 2: Email Format -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-envelope text-purple-500"></i> Email Address Protocol (Needs '@' symbol)
+                                </label>
+                                <span id="status-email" class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">⚠️ Broken</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <input type="text" id="input-email" value="jacob.student.school.uk" class="flex-1 px-3 py-2 border-2 border-slate-300 rounded-xl font-mono text-sm focus:outline-none focus:border-purple-500">
+                                <button onclick="validateEmail()" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-4 py-2 rounded-xl transition">
+                                    Test Rule
+                                </button>
+                            </div>
+                            <p id="msg-email" class="text-xs mt-2 text-slate-500">Hint: Every valid email needs an <code class="bg-slate-200 px-1 rounded">@</code> symbol separating username and domain!</p>
+                        </div>
+                    </div>
+
+                    <div id="protocol-complete-banner" class="hidden mt-4 bg-green-100 border border-green-300 rounded-2xl p-4 text-center">
+                        <span class="text-2xl">🎉</span>
+                        <h4 class="font-bold text-green-900 font-heading text-lg">Awesome Job, Detective!</h4>
+                        <p class="text-xs text-green-700">You proved that following strict protocol rules makes communication work smoothly!</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: IP ADDRESSES & SPOT-THE-VALID-IP GAME -->
+        <section id="sec-ip" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Theory Card -->
+                <div class="lg:col-span-1 bg-white rounded-3xl p-6 shadow-lg border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Concept 2</span>
+                        <h2 class="text-2xl font-bold font-heading text-slate-800 mt-2">What is an IP Address? 🏠</h2>
+                        
+                        <p class="text-slate-600 mt-3 text-sm leading-relaxed">
+                            An <strong>IP Address</strong> (Internet Protocol address) is like a <strong>digital house number</strong> for every device connected to the internet!
+                        </p>
+
+                        <!-- Key Rules Box -->
+                        <div class="my-4 bg-green-50 rounded-2xl p-4 border border-green-100 space-y-2">
+                            <h4 class="font-bold text-green-900 text-xs uppercase tracking-wider">IPv4 Address Rules:</h4>
+                            <ul class="text-xs text-slate-700 space-y-1.5 list-disc pl-4">
+                                <li>Made of <strong>4 numbers</strong> separated by <strong>dots (.)</strong></li>
+                                <li>Each number MUST be between <strong>0 and 255</strong></li>
+                                <li>Example: <code class="bg-white px-1.5 py-0.5 rounded border border-green-200 text-green-800 font-mono font-bold">192.168.1.15</code></li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-200 text-xs text-amber-900">
+                            <strong class="font-bold"><i class="fa-solid fa-triangle-exclamation text-amber-600 mr-1"></i> Common Error:</strong> 
+                            A number like 300 or 500 cannot be in an IP address because the max limit is 255!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game: Spot the Valid IP -->
+                <div class="lg:col-span-2 bg-white rounded-3xl p-6 shadow-lg border border-slate-100 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <div>
+                                <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Mini-Game</span>
+                                <h3 class="text-xl font-bold font-heading text-slate-800 mt-1">Spot the Valid IP Address! 🎯</h3>
+                            </div>
+                            <div class="text-right">
+                                <span id="ip-score" class="text-lg font-bold font-heading text-green-600">Score: 0 / 5</span>
+                            </div>
+                        </div>
+
+                        <p class="text-slate-600 text-sm mb-4">
+                            Click on the <strong>VALID</strong> IP address in each pair below. Remember: 4 numbers (0 to 255) separated by 3 dots!
+                        </p>
+
+                        <!-- Quiz Container -->
+                        <div id="ip-game-container" class="space-y-3">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <div id="ip-badge-reward" class="hidden mt-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl p-4 text-center shadow-md">
+                        <span class="text-2xl">🏅</span>
+                        <h4 class="font-bold font-heading text-lg">IP Master Badge Unlocked!</h4>
+                        <p class="text-xs text-green-100">You know exactly how to recognize correct network addresses!</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 4: PACKET DELIVERY SIMULATOR -->
+        <section id="sec-simulator" class="tab-content hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full uppercase">Interactive Simulator</span>
+                        <h2 class="text-2xl font-bold font-heading text-slate-800 mt-1">Network Packet Delivery Simulator 📦</h2>
+                        <p class="text-slate-600 text-sm">Select a sender and a receiver, then send a data packet through the network router!</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl border border-slate-200">
+                        <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl shadow-sm text-xs font-bold text-slate-700">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Sender
+                        </div>
+                        <div class="flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl shadow-sm text-xs font-bold text-slate-700">
+                            <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span> Receiver
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulator Controls -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Select Sender Device:</label>
+                        <select id="sim-sender" class="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-blue-500">
+                            <option value="192.168.1.10">Laptop A (192.168.1.10)</option>
+                            <option value="192.168.1.20">Tablet B (192.168.1.20)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Select Receiver Device:</label>
+                        <select id="sim-receiver" class="w-full px-3 py-2 bg-white border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:border-green-500">
+                            <option value="192.168.1.50">Web Server (192.168.1.50)</option>
+                            <option value="192.168.1.99">Printer (192.168.1.99)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button id="send-packet-btn" onclick="runPacketSimulation()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold font-heading py-2.5 px-4 rounded-xl shadow-md bouncy flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Send Packet!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Animated SVG Canvas Diagram -->
+                <div class="relative bg-slate-900 rounded-3xl p-4 overflow-hidden shadow-inner border border-slate-800 min-h-[360px] flex items-center justify-center">
+                    
+                    <svg id="network-svg" class="w-full h-[340px]" viewBox="0 0 800 340">
+                        <!-- Connecting Lines -->
+                        <!-- Sender A (150, 80) -> Router (400, 170) -->
+                        <line x1="150" y1="80" x2="400" y2="170" stroke="#38BDF8" stroke-width="4" stroke-dasharray="6,6" />
+                        <!-- Sender B (150, 260) -> Router (400, 170) -->
+                        <line x1="150" y1="260" x2="400" y2="170" stroke="#38BDF8" stroke-width="4" stroke-dasharray="6,6" />
+                        
+                        <!-- Router (400, 170) -> Receiver A (650, 80) -->
+                        <line x1="400" y1="170" x2="650" y2="80" stroke="#34D399" stroke-width="4" stroke-dasharray="6,6" />
+                        <!-- Router (400, 170) -> Receiver B (650, 260) -->
+                        <line x1="400" y1="170" x2="650" y2="260" stroke="#34D399" stroke-width="4" stroke-dasharray="6,6" />
+
+                        <!-- Animated Packet Object (Hidden by default) -->
+                        <g id="data-packet" class="opacity-0 transition-opacity">
+                            <rect x="-35" y="-20" width="70" height="40" rx="8" fill="#F59E0B" stroke="#FFF" stroke-width="2" />
+                            <text x="0" y="-3" text-anchor="middle" fill="#FFF" font-size="10" font-weight="bold">PACKET</text>
+                            <text id="packet-ip-text" x="0" y="12" text-anchor="middle" fill="#FEF3C7" font-size="8" font-family="monospace">192.168.1.x</text>
+                        </g>
+
+                        <!-- DEVICES -->
+                        
+                        <!-- Laptop A -->
+                        <g id="dev-192.168.1.10" class="cursor-pointer">
+                            <circle cx="150" cy="80" r="38" fill="#1E293B" stroke="#3B82F6" stroke-width="4" />
+                            <text x="150" y="85" text-anchor="middle" fill="#FFF" font-size="24">💻</text>
+                            <rect x="90" y="125" width="120" height="22" rx="6" fill="#3B82F6" />
+                            <text x="150" y="140" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">192.168.1.10</text>
+                        </g>
+
+                        <!-- Tablet B -->
+                        <g id="dev-192.168.1.20" class="cursor-pointer">
+                            <circle cx="150" cy="260" r="38" fill="#1E293B" stroke="#3B82F6" stroke-width="4" />
+                            <text x="150" y="265" text-anchor="middle" fill="#FFF" font-size="24">📱</text>
+                            <rect x="90" y="305" width="120" height="22" rx="6" fill="#3B82F6" />
+                            <text x="150" y="320" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">192.168.1.20</text>
+                        </g>
+
+                        <!-- Central Router -->
+                        <g id="dev-router">
+                            <circle cx="400" cy="170" r="45" fill="#312E81" stroke="#818CF8" stroke-width="4" />
+                            <text x="400" y="176" text-anchor="middle" fill="#FFF" font-size="28">📡</text>
+                            <rect x="330" y="222" width="140" height="22" rx="6" fill="#4338CA" />
+                            <text x="400" y="237" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">Central Router</text>
+                        </g>
+
+                        <!-- Web Server -->
+                        <g id="dev-192.168.1.50" class="cursor-pointer">
+                            <circle cx="650" cy="80" r="38" fill="#1E293B" stroke="#10B981" stroke-width="4" />
+                            <text x="650" y="85" text-anchor="middle" fill="#FFF" font-size="24">🖥️</text>
+                            <rect x="590" y="125" width="120" height="22" rx="6" fill="#10B981" />
+                            <text x="650" y="140" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">192.168.1.50</text>
+                        </g>
+
+                        <!-- Printer -->
+                        <g id="dev-192.168.1.99" class="cursor-pointer">
+                            <circle cx="650" cy="260" r="38" fill="#1E293B" stroke="#10B981" stroke-width="4" />
+                            <text x="650" y="265" text-anchor="middle" fill="#FFF" font-size="24">🖨️</text>
+                            <rect x="590" y="305" width="120" height="22" rx="6" fill="#10B981" />
+                            <text x="650" y="320" text-anchor="middle" fill="#FFF" font-size="11" font-weight="bold">192.168.1.99</text>
+                        </g>
+                    </svg>
+
+                </div>
+
+                <!-- Live Log Box -->
+                <div class="mt-4 bg-slate-900 rounded-2xl p-4 font-mono text-xs text-green-400 border border-slate-800">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2 text-slate-400">
+                        <span><i class="fa-solid fa-terminal mr-1"></i> NETWORK ACTIVITY LOG</span>
+                        <span id="sim-status-badge" class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded text-[10px]">IDLE</span>
+                    </div>
+                    <p id="sim-log">System ready. Choose devices and hit 'Send Packet' to inspect data movement!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: EXIT TICKET QUIZ -->
+        <section id="sec-quiz" class="tab-content hidden">
+            <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 max-w-3xl mx-auto">
+                <div class="text-center mb-6">
+                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Final Assessment</span>
+                    <h2 class="text-3xl font-bold font-heading text-slate-800 mt-2">Exit Ticket Check-out 🎟️</h2>
+                    <p class="text-slate-600 text-sm mt-1">Answer these 5 quick questions to test what you learned!</p>
+                </div>
+
+                <!-- Quiz Questions List -->
+                <div id="quiz-questions-container" class="space-y-6">
+                    <!-- Dynamic injection by JS -->
+                </div>
+
+                <div class="mt-8 border-t border-slate-100 pt-6 flex justify-center">
+                    <button id="submit-quiz-btn" onclick="gradeQuiz()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold font-heading px-8 py-3.5 rounded-2xl shadow-xl bouncy text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Exit Ticket
+                    </button>
+                </div>
+
+                <!-- Results Modal / Box -->
+                <div id="quiz-result-box" class="hidden mt-8 bg-gradient-to-b from-indigo-50 to-purple-50 rounded-3xl p-6 border-2 border-indigo-200 text-center">
+                    <div id="star-rating" class="text-4xl text-amber-400 mb-2">⭐⭐⭐</div>
+                    <h3 class="text-2xl font-bold font-heading text-indigo-950" id="quiz-score-title">You scored 5 / 5!</h3>
+                    <p id="quiz-feedback-text" class="text-sm text-indigo-800 mt-1 max-w-md mx-auto">
+                        Fantastic job! You're an official Network Engineer in training!
+                    </p>
+                    
+                    <div class="mt-4 inline-flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow border border-indigo-100 text-xs font-bold text-indigo-900">
+                        <span>🎖️ Special Badge Earned:</span>
+                        <span id="quiz-badge-name" class="text-purple-600">Master Network Detective</span>
+                    </div>
+
+                    <div class="mt-6">
+                        <button onclick="resetQuiz()" class="text-xs text-indigo-600 hover:underline font-bold">
+                            Try Quiz Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- AUDIO SOUND EFFECTS (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'pop') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.2);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        // --- GLOBAL APP STATE & BADGES ---
+        const state = {
+            badges: new Set(),
+            warmupComplete: false,
+            protocolUrlFixed: false,
+            protocolEmailFixed: false,
+            ipScore: 0,
+            quizSubmitted: false
+        };
+
+        function updateProgress() {
+            const totalBadges = 4;
+            const currentBadges = state.badges.size;
+            const percentage = Math.min(100, Math.round((currentBadges / totalBadges) * 100));
+
+            document.getElementById('badge-count').innerHTML = `<i class="fa-solid fa-award text-yellow-400"></i> ${currentBadges} Badge${currentBadges !== 1 ? 's' : ''}`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function unlockBadge(badgeKey, badgeTitle) {
+            if (!state.badges.has(badgeKey)) {
+                state.badges.add(badgeKey);
+                playSound('success');
+                updateProgress();
+            }
+        }
+
+        // --- TAB NAVIGATION ---
+        function switchTab(tabId) {
+            playSound('pop');
+            // Hide all contents
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
+
+            // Show active content
+            const activeSec = document.getElementById(`sec-${tabId}`);
+            if (activeSec) {
+                activeSec.classList.remove('hidden');
+                activeSec.classList.add('block');
+            }
+
+            // Style tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all text-white/80 hover:bg-white/10";
+            });
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all bg-white text-blue-700 shadow-md";
+            }
+
+            // Dynamic Guide Speeches
+            const speechMap = {
+                warmup: '"Let me test your detective skills! Can you sort real-life rules from digital rules?"',
+                protocols: '"Protocols are like secret handshakes for computers! Fix the broken rules in our tool."',
+                ip: '"Every house has a street address, and every device has an IP address! Can you spot valid IPs?"',
+                simulator: '"Time to test packet routing! Pick a sender and receiver to send data across the network."',
+                quiz: '"You made it to the final Exit Ticket! Answer 5 questions to earn your Network Badge!"'
+            };
+            document.getElementById('guide-speech').textContent = speechMap[tabId] || '"Keep exploring!"';
+        }
+
+        // --- WARMUP ACTIVITY (RULE DETECTIVE) ---
+        const warmupData = [
+            { id: 1, text: "🤝 Shake right hands when meeting", category: "real" },
+            { id: 2, text: "📬 Postcode on an envelope", category: "real" },
+            { id: 3, text: "🌐 https:// before website links", category: "digital" },
+            { id: 4, text: "📧 '@' symbol inside email address", category: "digital" },
+            { id: 5, text: "🛑 Stop at a red traffic light", category: "real" },
+            { id: 6, text: "💻 IP address (e.g. 192.168.1.1)", category: "digital" }
+        ];
+
+        let warmupAssignments = {};
+
+        function initWarmup() {
+            const deck = document.getElementById('unsorted-deck');
+            const cReal = document.getElementById('container-real');
+            const cDigital = document.getElementById('container-digital');
+            
+            deck.innerHTML = '';
+            cReal.innerHTML = '';
+            cDigital.innerHTML = '';
+            warmupAssignments = {};
+
+            warmupData.forEach(item => {
+                const card = document.createElement('div');
+                card.id = `warmcard-${item.id}`;
+                card.draggable = true;
+                card.ondragstart = (e) => e.dataTransfer.setData('text/plain', item.id);
+                card.onclick = () => autoMoveWarmup(item.id);
+                card.className = "bg-white border-2 border-slate-200 shadow-sm rounded-xl px-3 py-2 text-xs font-bold text-slate-700 cursor-pointer hover:border-blue-400 transition bouncy flex items-center gap-1.5";
+                card.innerHTML = `<i class="fa-solid fa-grip-vertical text-slate-300"></i> ${item.text}`;
+                deck.appendChild(card);
+            });
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function handleDrop(ev, targetCat) {
+            ev.preventDefault();
+            const itemId = parseInt(ev.dataTransfer.getData('text/plain'));
+            moveWarmupCard(itemId, targetCat);
+        }
+
+        function autoMoveWarmup(itemId) {
+            // Cycle: unsorted -> real -> digital -> unsorted
+            const current = warmupAssignments[itemId];
+            let next = 'real';
+            if (current === 'real') next = 'digital';
+            else if (current === 'digital') next = 'unsorted';
+            
+            moveWarmupCard(itemId, next);
+        }
+
+        function moveWarmupCard(itemId, category) {
+            playSound('pop');
+            const card = document.getElementById(`warmcard-${itemId}`);
+            if (!card) return;
+
+            warmupAssignments[itemId] = category;
+
+            if (category === 'real') {
+                document.getElementById('container-real').appendChild(card);
+            } else if (category === 'digital') {
+                document.getElementById('container-digital').appendChild(card);
+            } else {
+                delete warmupAssignments[itemId];
+                document.getElementById('unsorted-deck').appendChild(card);
+            }
+        }
+
+        function checkWarmup() {
+            let correct = 0;
+            warmupData.forEach(item => {
+                if (warmupAssignments[item.id] === item.category) {
+                    correct++;
+                }
+            });
+
+            if (correct === warmupData.length) {
+                playSound('success');
+                unlockBadge('warmup', 'Rule Detective');
+                alert("🎉 Brilliant Detective Work! All rules are placed in the correct categories!");
+            } else {
+                playSound('error');
+                alert(`You got ${correct} out of ${warmupData.length} correct! Keep tweaking or check where items belong.`);
+            }
+        }
+
+        function resetWarmup() {
+            playSound('pop');
+            initWarmup();
+        }
+
+        // --- PROTOCOL FIX-IT LAB ---
+        function validateURL() {
+            const val = document.getElementById('input-url').value.trim();
+            const status = document.getElementById('status-url');
+            const msg = document.getElementById('msg-url');
+
+            if (val.startsWith('http://') || val.startsWith('https://')) {
+                playSound('success');
+                status.className = "text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded";
+                status.textContent = "✅ Valid Protocol!";
+                msg.className = "text-xs mt-2 text-green-600 font-bold";
+                msg.textContent = "Perfect! The browser now knows how to fetch this page using HTTPS rules.";
+                state.protocolUrlFixed = true;
+                checkProtocolLabComplete();
+            } else {
+                playSound('error');
+                status.className = "text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded";
+                status.textContent = "❌ Invalid Protocol";
+                msg.className = "text-xs mt-2 text-red-500 font-bold";
+                msg.textContent = "Oops! Add 'https://' to the beginning of the URL so it follows web rules.";
+            }
+        }
+
+        function validateEmail() {
+            const val = document.getElementById('input-email').value.trim();
+            const status = document.getElementById('status-email');
+            const msg = document.getElementById('msg-email');
+
+            if (val.includes('@') && val.indexOf('@') > 0 && val.indexOf('@') < val.length - 1) {
+                playSound('success');
+                status.className = "text-xs font-bold text-green-700 bg-green-100 px-2 py-0.5 rounded";
+                status.textContent = "✅ Valid Email!";
+                msg.className = "text-xs mt-2 text-green-600 font-bold";
+                msg.textContent = "Awesome! Mail servers can now identify both user and network host!";
+                state.protocolEmailFixed = true;
+                checkProtocolLabComplete();
+            } else {
+                playSound('error');
+                status.className = "text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded";
+                status.textContent = "❌ Invalid Email";
+                msg.className = "text-xs mt-2 text-red-500 font-bold";
+                msg.textContent = "Missing '@' symbol! Email protocol requires username@domain.";
+            }
+        }
+
+        function checkProtocolLabComplete() {
+            if (state.protocolUrlFixed && state.protocolEmailFixed) {
+                document.getElementById('protocol-complete-banner').classList.remove('hidden');
+                unlockBadge('protocol', 'Protocol Master');
+            }
+        }
+
+        // --- SPOT THE VALID IP GAME ---
+        const ipQuizQuestions = [
+            {
+                pair: [
+                    { ip: "192.168.1.5", valid: true, reason: "Correct! 4 numbers between 0-255." },
+                    { ip: "192.168.1.350", valid: false, reason: "Incorrect! 350 is greater than 255." }
+                ]
+            },
+            {
+                pair: [
+                    { ip: "10.0.0", valid: false, reason: "Incorrect! Only has 3 numbers, needs 4." },
+                    { ip: "10.0.0.1", valid: true, reason: "Correct! Exactly 4 numbers separated by dots." }
+                ]
+            },
+            {
+                pair: [
+                    { ip: "172.16.254.1", valid: true, reason: "Correct! Perfectly formatted IPv4 address." },
+                    { ip: "172.16.254.1.99", valid: false, reason: "Incorrect! Has 5 numbers instead of 4." }
+                ]
+            },
+            {
+                pair: [
+                    { ip: "888.1.1.1", valid: false, reason: "Incorrect! 888 is way higher than 255." },
+                    { ip: "8.8.8.8", valid: true, reason: "Correct! Google's famous DNS server address." }
+                ]
+            },
+            {
+                pair: [
+                    { ip: "127.0.0.1", valid: true, reason: "Correct! Known as 'localhost' or home address." },
+                    { ip: "127,0,0,1", valid: false, reason: "Incorrect! Uses commas instead of dots." }
+                ]
+            }
+        ];
+
+        let ipAnswered = {};
+
+        function initIPGame() {
+            const container = document.getElementById('ip-game-container');
+            container.innerHTML = '';
+            ipAnswered = {};
+
+            ipQuizQuestions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3";
+                
+                card.innerHTML = `
+                    <span class="text-xs font-bold text-slate-500 uppercase">Pair #${idx + 1}:</span>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button onclick="checkIPChoice(${idx}, 0)" id="ip-btn-${idx}-0" class="flex-1 sm:flex-initial px-4 py-2 bg-white border-2 border-slate-300 rounded-xl font-mono text-sm font-bold text-slate-800 hover:border-green-500 hover:bg-green-50 transition">
+                            ${q.pair[0].ip}
+                        </button>
+                        <button onclick="checkIPChoice(${idx}, 1)" id="ip-btn-${idx}-1" class="flex-1 sm:flex-initial px-4 py-2 bg-white border-2 border-slate-300 rounded-xl font-mono text-sm font-bold text-slate-800 hover:border-green-500 hover:bg-green-50 transition">
+                            ${q.pair[1].ip}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function checkIPChoice(qIdx, choiceIdx) {
+            if (ipAnswered[qIdx]) return; // prevent double clicking
+
+            const item = ipQuizQuestions[qIdx].pair[choiceIdx];
+            const btn = document.getElementById(`ip-btn-${qIdx}-${choiceIdx}`);
+
+            ipAnswered[qIdx] = true;
+
+            if (item.valid) {
+                playSound('success');
+                btn.className = "flex-1 sm:flex-initial px-4 py-2 bg-green-500 text-white font-mono text-sm font-bold rounded-xl shadow";
+                state.ipScore++;
+            } else {
+                playSound('error');
+                btn.className = "flex-1 sm:flex-initial px-4 py-2 bg-red-500 text-white font-mono text-sm font-bold rounded-xl shadow";
+            }
+
+            document.getElementById('ip-score').textContent = `Score: ${state.ipScore} / 5`;
+
+            if (Object.keys(ipAnswered).length === 5) {
+                if (state.ipScore >= 4) {
+                    unlockBadge('ip', 'IP Expert');
+                    document.getElementById('ip-badge-reward').classList.remove('hidden');
+                }
+            }
+        }
+
+        // --- NETWORK PACKET SIMULATOR ---
+        function runPacketSimulation() {
+            playSound('pop');
+            const senderIp = document.getElementById('sim-sender').value;
+            const receiverIp = document.getElementById('sim-receiver').value;
+
+            const packet = document.getElementById('data-packet');
+            const packetText = document.getElementById('packet-ip-text');
+            const log = document.getElementById('sim-log');
+            const badge = document.getElementById('sim-status-badge');
+            const btn = document.getElementById('send-packet-btn');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            packetText.textContent = `To: ${receiverIp.split('.').pop()}`;
+            badge.textContent = "TRANSMITTING";
+            badge.className = "bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] animate-pulse";
+
+            log.textContent = `[1/3] Preparing packet at Sender (${senderIp}) -> Target: (${receiverIp})`;
+
+            // Positions:
+            // 192.168.1.10 = (150, 80)
+            // 192.168.1.20 = (150, 260)
+            // Router = (400, 170)
+            // 192.168.1.50 = (650, 80)
+            // 192.168.1.99 = (650, 260)
+
+            const startX = 150;
+            const startY = senderIp === '192.168.1.10' ? 80 : 260;
+            const endX = 650;
+            const endY = receiverIp === '192.168.1.50' ? 80 : 260;
+
+            // Phase 1: Move to router
+            packet.setAttribute('transform', `translate(${startX}, ${startY})`);
+            packet.classList.remove('opacity-0');
+
+            setTimeout(() => {
+                log.textContent = `[2/3] Packet reached Central Router! Reading destination IP badge: ${receiverIp}...`;
+                packet.setAttribute('transform', `translate(400, 170)`);
+                packet.style.transition = "transform 1s ease-in-out";
+
+                setTimeout(() => {
+                    log.textContent = `[3/3] Packet routed correctly to device (${receiverIp})! Delivery successful!`;
+                    packet.setAttribute('transform', `translate(${endX}, ${endY})`);
+
+                    setTimeout(() => {
+                        playSound('success');
+                        badge.textContent = "DELIVERED";
+                        badge.className = "bg-green-500 text-white px-2 py-0.5 rounded text-[10px]";
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-0', 'opacity-50');
+
+                        unlockBadge('simulator', 'Packet Master');
+                    }, 1000);
+
+                }, 1100);
+
+            }, 100);
+        }
+
+        // --- EXIT TICKET QUIZ ---
+        const exitQuizData = [
+            {
+                question: "What is a network protocol?",
+                options: [
+                    "A physical wire connected to the wall",
+                    "An agreed set of rules for computer communication",
+                    "A type of computer screen",
+                    "A password for your email"
+                ],
+                correct: 1
+            },
+            {
+                question: "Which of these is a valid IPv4 address format?",
+                options: [
+                    "192.168.1.250",
+                    "300.500.1.1",
+                    "www.google.com",
+                    "192-168-1"
+                ],
+                correct: 0
+            },
+            {
+                question: "Why do devices on a network need unique IP addresses?",
+                options: [
+                    "So they look pretty",
+                    "To charge monthly money",
+                    "So data packets know exactly where to go without getting lost",
+                    "To make the internet run faster"
+                ],
+                correct: 2
+            },
+            {
+                question: "What happens if a web address doesn't follow its protocol rules (like missing https://)?",
+                options: [
+                    "The computer explodes",
+                    "The browser might fail to load the site properly",
+                    "It automatically converts to a video game",
+                    "Nothing, rules don't matter to computers"
+                ],
+                correct: 1
+            },
+            {
+                question: "In our packet simulator, what device reads destination IPs to route packets?",
+                options: [
+                    "The keyboard",
+                    "The Central Router",
+                    "The power socket",
+                    "The mouse"
+                ],
+                correct: 1
+            }
+        ];
+
+        function initExitQuiz() {
+            const container = document.getElementById('quiz-questions-container');
+            container.innerHTML = '';
+
+            exitQuizData.forEach((q, qIdx) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-5 rounded-2xl border border-slate-200";
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, oIdx) => {
+                    optionsHTML += `
+                        <label class="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 cursor-pointer hover:border-indigo-400 transition text-sm text-slate-700">
+                            <input type="radio" name="quiz-q-${qIdx}" value="${oIdx}" class="w-4 h-4 text-indigo-600">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <p class="font-bold font-heading text-slate-800 text-base mb-3">${qIdx + 1}. ${q.question}</p>
+                    <div class="space-y-2">${optionsHTML}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function gradeQuiz() {
+            let score = 0;
+
+            exitQuizData.forEach((q, qIdx) => {
+                const selected = document.querySelector(`input[name="quiz-q-${qIdx}"]:checked`);
+                if (selected && parseInt(selected.value) === q.correct) {
+                    score++;
+                }
+            });
+
+            const resultBox = document.getElementById('quiz-result-box');
+            const scoreTitle = document.getElementById('quiz-score-title');
+            const feedbackText = document.getElementById('quiz-feedback-text');
+            const stars = document.getElementById('star-rating');
+            const badgeTitle = document.getElementById('quiz-badge-name');
+
+            resultBox.classList.remove('hidden');
+
+            scoreTitle.textContent = `You scored ${score} / 5!`;
+
+            if (score === 5) {
+                playSound('success');
+                stars.textContent = "⭐⭐⭐⭐⭐";
+                feedbackText.textContent = "Outstanding! Perfect score! You mastered network protocols and IP addresses!";
+                badgeTitle.textContent = "Network Master Gold";
+                unlockBadge('quiz', 'Exit Ticket Champ');
+            } else if (score >= 3) {
+                playSound('success');
+                stars.textContent = "⭐⭐⭐";
+                feedbackText.textContent = "Great job! You have a solid grasp of how computer networks communicate.";
+                badgeTitle.textContent = "Network Detective Silver";
+                unlockBadge('quiz', 'Exit Ticket Champ');
+            } else {
+                playSound('error');
+                stars.textContent = "⭐";
+                feedbackText.textContent = "Good try! Review the lessons and try again to improve your score!";
+                badgeTitle.textContent = "Junior Network Explorer";
+            }
+
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            playSound('pop');
+            document.getElementById('quiz-result-box').classList.add('hidden');
+            initExitQuiz();
+        }
+
+        // --- ON APP LOAD INITIALIZATION ---
+        window.onload = function() {
+            initWarmup();
+            initIPGame();
+            initExitQuiz();
+            updateProgress();
+        };
+    </script>
+</body>
+</html>
